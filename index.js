@@ -117,7 +117,7 @@ function onlyUnique(value, index, self) {
 
 function formatTag(favorites, tag) {
 	var filteredFavorites = filterFavorites(favorites, tag);
-	var mkdn = '## ' + tag + '\n';
+	var mkdn = '## ' + tag.split(' ').map(capitalize).join(' ') + '\n';
 	mkdn += '\n' + filteredFavorites.map(function(item) {
 		return '- [' + item.resolved_title + '](' + item.resolved_url + ') - ' + item.excerpt + '\n';
 	}).join('');
@@ -130,4 +130,11 @@ function filterFavorites(favorites, tag) {
 	}).sort(function(item1, item2) {
 		return item1.resolved_title.localeCompare(item2.resolved_title);
 	});
+}
+
+function capitalize(word) {
+	if (word.length == 1) {
+		return word[0].toUpperCase();
+	}
+	return word[0].toUpperCase() + word.slice(1);
 }
