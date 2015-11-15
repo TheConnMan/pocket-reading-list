@@ -7,5 +7,9 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "TheConnMan",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "pocket-api": "^0.2.3",
+    "q": "^1.4.1"
+  }
 }
