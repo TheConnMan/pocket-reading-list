@@ -85,3 +85,16 @@ function getFavorites(session) {
 	});
 	return d.promise;
 }
+
+function getTags(favorites) {
+	return [].concat.apply([], favorites.map(function(favorite) {
+		var tagKeys = Object.keys(favorite.tags);
+		return tagKeys.map(function(tagKey) {
+			return favorite.tags[tagKey].tag;
+		});
+	})).filter(onlyUnique).sort();
+}
+
+function onlyUnique(value, index, self) {
+	return self.indexOf(value) === index;
+}
