@@ -1,5 +1,6 @@
 {
 	"api_key": "Pocket Web API Key",
 	"url": "App URL",
-	"port": "App port"
+	"port": "App port",
+	"secret": "Password for session encryption"
 }

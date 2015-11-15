@@ -10,6 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "express": "^4.13.3",
+    "express-session": "^1.12.1",
     "pocket-api": "^0.2.3",
     "q": "^1.4.1"
   }
