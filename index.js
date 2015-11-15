@@ -1,12 +1,22 @@
 var config = require('./config');
 var pocket = require('pocket-api');
 var Q = require('q');
+var request = require('request');
 var express = require('express');
 var session = require('express-session');
 
 var app = express();
-var pocketApiRoot = 'https://getpocket.com/auth/authorize?';
 
+var pocketUrl = {
+	redirect: 'https://getpocket.com/auth/authorize',
+	get: 'https://getpocket.com/v3/get'
+};
+var headers = {
+	"content-type": "application/x-www-form-urlencoded",
+	"X-Accept": "application/json"
+};
+
+app.set('json spaces', 4);
 app.use(session({
 	secret: config.secret,
 	cookie: {
@@ -22,8 +32,9 @@ app.get('/', function(req, res) {
 
 app.get('/response', function(req, res) {
 	getAccessToken(req.session)
-	.then(function() {
-		res.send('Thanks');
+	.then(getFavorites)
+	.then(function(favorites) {
+		res.json(favorites);
 	});
 });
 
@@ -34,7 +45,7 @@ function constructRedirectUrl(session) {
 		return getRequestToken(session);
 	})
 	.then(function() {
-		return pocketApiRoot + 'request_token=' + session.request_token + '&redirect_uri=' + config.url + ':' + config.port + '/response';
+		return pocketUrl.redirect + '?request_token=' + session.request_token + '&redirect_uri=' + config.url + ':' + config.port + '/response';
 	});
 }
 
@@ -52,7 +63,25 @@ function getAccessToken(session) {
 	pocket.getAccessToken(config.api_key, session.request_token, function(data) {
 		session.username = data.username;
 		session.access_token = data.access_token;
-		d.resolve();
+		d.resolve(session);
+	});
+	return d.promise;
+}
+
+function getFavorites(session) {
+	var d = Q.defer();
+	var options = {
+		headers: headers,
+		url: pocketUrl.get,
+		body: 'consumer_key=' + config.api_key + '&access_token=' + session.access_token + '&favorite=1&detailType=complete'
+	};
+
+	request.post(options, function(error, response, body) {
+		var list = JSON.parse(body).list;
+		var favorites = Object.keys(list).map(function(key) {
+			return list[key];
+		});
+		d.resolve(favorites);
 	});
 	return d.promise;
 }
