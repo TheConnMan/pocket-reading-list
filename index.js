@@ -34,7 +34,10 @@ app.get('/response', function(req, res) {
 	getAccessToken(req.session)
 	.then(getFavorites)
 	.then(function(favorites) {
-		res.send(formatFavorites(favorites, req.session));
+		res.setHeader('Content-Disposition', 'attachment; filename="' + req.session.username + '-Reading-List.md"');
+res.setHeader('Content-type', 'text/plain');
+		res.write(formatFavorites(favorites, req.session));
+		res.end();
 	});
 });
 
