@@ -34,7 +34,7 @@ app.get('/response', function(req, res) {
 	getAccessToken(req.session)
 	.then(getFavorites)
 	.then(function(favorites) {
-		res.json(favorites);
+		res.send(formatFavorites(favorites, req.session));
 	});
 });
 
@@ -86,15 +86,45 @@ function getFavorites(session) {
 	return d.promise;
 }
 
+function formatFavorites(favorites, session) {
+	var tags = getTags(favorites);
+	var mkdn = '# ' + session.username + '\'s Reading List\n\n';
+	mkdn += tags.map(function(tag) {
+		return formatTag(favorites, tag);
+	}).join('\n');
+	return mkdn;
+}
+
 function getTags(favorites) {
-	return [].concat.apply([], favorites.map(function(favorite) {
-		var tagKeys = Object.keys(favorite.tags);
-		return tagKeys.map(function(tagKey) {
-			return favorite.tags[tagKey].tag;
-		});
+	return [].concat.apply([], favorites.map(function(item) {
+		return getItemTags(item);
 	})).filter(onlyUnique).sort();
+}
+
+function getItemTags(item) {
+	var tagKeys = Object.keys(item.tags);
+	return tagKeys.map(function(tagKey) {
+		return item.tags[tagKey].tag;
+	});
 }
 
 function onlyUnique(value, index, self) {
 	return self.indexOf(value) === index;
+}
+
+function formatTag(favorites, tag) {
+	var filteredFavorites = filterFavorites(favorites, tag);
+	var mkdn = '## ' + tag + '\n';
+	mkdn += '\n' + filteredFavorites.map(function(item) {
+		return '- [' + item.resolved_title + '](' + item.resolved_url + ') - ' + item.excerpt + '\n';
+	}).join('');
+	return mkdn;
+}
+
+function filterFavorites(favorites, tag) {
+	return favorites.filter(function(item) {
+		return getItemTags(item).indexOf(tag) != -1;
+	}).sort(function(item1, item2) {
+		return item1.resolved_title.localeCompare(item2.resolved_title);
+	});
 }
