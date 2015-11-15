@@ -9,6 +9,7 @@
   "author": "TheConnMan",
   "license": "MIT",
   "dependencies": {
+    "express": "^4.13.3",
     "pocket-api": "^0.2.3",
     "q": "^1.4.1"
   }

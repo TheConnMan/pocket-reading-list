@@ -1,3 +1,5 @@
 {
-	"api_key": "Pocket Web API Key"
+	"api_key": "Pocket Web API Key",
+	"url": "App URL",
+	"port": "App port"
 }
